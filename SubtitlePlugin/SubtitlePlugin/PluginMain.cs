@@ -25,7 +25,7 @@ namespace SubtitlePlugin
 	[ExportMetadata("Guid", "1207972E-79CD-48F8-A4E2-94EEA498C947")]
 	[ExportMetadata("Title", "SubtitlePlugin")]
 	[ExportMetadata("Description", "자막을 추가해주는 플러그인 입니다.")]
-	[ExportMetadata("Version", "0.0.1")]
+	[ExportMetadata("Version", "0.0.2")]
 	[ExportMetadata("Author", "@CirnoV")]
 	public class PluginMain : IPlugin, ITool
 	{

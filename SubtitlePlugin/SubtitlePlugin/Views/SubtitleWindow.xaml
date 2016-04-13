@@ -1,0 +1,48 @@
+﻿<metro:MetroWindow Name="metroWindow"
+	         x:Class="SubtitlePlugin.Views.SubtitleWindow"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:SubtitlePlugin.Views"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:l="http://schemas.livet-mvvm.net/2011/wpf"
+             xmlns:vm="clr-namespace:SubtitlePlugin.ViewModels"
+             xmlns:controls="clr-namespace:Grabacr07.KanColleViewer.Controls;assembly=KanColleViewer.Controls"
+             xmlns:metro="http://schemes.grabacr.net/winfx/2014/controls"
+             mc:Ignorable="d"
+             Background="#02FFFFFF"
+             Foreground="{DynamicResource ActiveForegroundBrushKey}"
+			 d:DataContext="{d:DesignInstance vm:SubtitleWindowViewModel}"
+             Height="100" Width="400"
+			 IsRestoringWindowPlacement="True"
+			 AllowsTransparency="True"
+		     WindowStyle="None" MouseLeftButtonDown="metroWindow_MouseLeftButtonDown" Topmost="True">
+
+	<metro:MetroWindow.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="../Styles/DefaultStyle.xaml"/>
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</metro:MetroWindow.Resources>
+
+	<i:Interaction.Triggers>
+		<i:EventTrigger EventName="Closed">
+			<l:DataContextDisposeAction />
+		</i:EventTrigger>
+
+		<l:InteractionMessageTrigger Messenger="{Binding Messenger, Mode=OneWay}"
+										 MessageKey="Window.Action">
+			<l:WindowInteractionMessageAction InvokeActionOnlyWhenWindowIsActive="False" />
+		</l:InteractionMessageTrigger>
+	</i:Interaction.Triggers>
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+		</Grid.RowDefinitions>
+
+		<TextBlock VerticalAlignment="Center" HorizontalAlignment="Left" Text="{Binding Text}" FontSize="18" TextWrapping="Wrap"/>
+	</Grid>
+</metro:MetroWindow>
