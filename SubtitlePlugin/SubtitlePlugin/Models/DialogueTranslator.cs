@@ -23,7 +23,8 @@ namespace SubtitlePlugin.Models
 		public event DialogueAddedEventHandler DialogueAdded = delegate { };
 
 		private List<DialogueData> dialogue;
-		private dynamic quotes;
+		private dynamic quotes_kr;
+		private dynamic quotes_en;
 		private static Dictionary<string, ShipInfo> shipCache = new Dictionary<string, ShipInfo>();
 		// Diffs are from KC3. Licensed under MIT.
 		private static List<int> voiceDiffs = new List<int>{
@@ -48,7 +49,9 @@ namespace SubtitlePlugin.Models
 			// but if I want something out quickly, this'll have to do.
 			WebClient client = new WebClient();
 			string quotesJson = client.DownloadString("https://raw.githubusercontent.com/KC3Kai/kc3-translations/master/data/kr/quotes.json");
-			quotes = JsonConvert.DeserializeObject(quotesJson);
+			quotes_kr = JsonConvert.DeserializeObject(quotesJson);
+			quotesJson = client.DownloadString("https://raw.githubusercontent.com/KC3Kai/kc3-translations/master/data/en/quotes.json");
+			quotes_en = JsonConvert.DeserializeObject(quotesJson);
 			int i = 0;
 		}
 
@@ -79,7 +82,7 @@ namespace SubtitlePlugin.Models
 						master = shipCache[identifier];
 					else
 					{
-						master = KanColleClient.Current.Master.Ships.Where(kvp => SubtitlePlugin.Shipgraph.Any(x => x.api_id == kvp.Value.Id && x.api_filename == identifier))
+						master = KanColleClient.Current.Master.Ships.Where(kvp => PluginMain.Shipgraph.Any(x => x.api_id == kvp.Value.Id && x.api_filename == identifier))
 							.Select(kvp => kvp.Value).FirstOrDefault();
 						lock (shipCache)
 						{
@@ -95,26 +98,49 @@ namespace SubtitlePlugin.Models
 					break;
 			}
 			if (data == null) return "";
-			if (Instance.quotes[newIdentifier] != null)
+			if (Instance.quotes_kr[newIdentifier] != null)
 			{
-				if (Instance.quotes[newIdentifier][voiceLine] != null)
+				if (Instance.quotes_kr[newIdentifier][voiceLine] != null)
 				{
-					data.Line = Instance.quotes[newIdentifier][voiceLine].ToString();
+					data.Line = Instance.quotes_kr[newIdentifier][voiceLine].ToString();
 				}
 				else
 				{
 					if (specialDiffs.ContainsKey(voiceLine))
 					{
-						if (Instance.quotes[newIdentifier][specialDiffs[voiceLine].ToString()] != null)
+						if (Instance.quotes_kr[newIdentifier][specialDiffs[voiceLine].ToString()] != null)
 						{
-							data.Line = Instance.quotes[newIdentifier][specialDiffs[voiceLine].ToString()];
+							data.Line = Instance.quotes_kr[newIdentifier][specialDiffs[voiceLine].ToString()];
 						}
-						else data.Line = "<unknown>";
+						else data.Line = $"unknown (\"{newIdentifier}\" : \"{voiceLine}\")";
 					}
-					else data.Line = "<unknown>";
+					else data.Line = $"unknown (\"{newIdentifier}\" : \"{voiceLine}\")";
 				}
 			}
-			else data.Line = "<unknown>";
+			else data.Line = $"unknown (\"{newIdentifier}\" : \"{voiceLine}\")";
+			if (data.Line.Contains("unknown"))
+			{
+				if (Instance.quotes_en[newIdentifier] != null)
+				{
+					if (Instance.quotes_en[newIdentifier][voiceLine] != null)
+					{
+						data.Line = Instance.quotes_en[newIdentifier][voiceLine].ToString();
+					}
+					else
+					{
+						if (specialDiffs.ContainsKey(voiceLine))
+						{
+							if (Instance.quotes_en[newIdentifier][specialDiffs[voiceLine].ToString()] != null)
+							{
+								data.Line = Instance.quotes_en[newIdentifier][specialDiffs[voiceLine].ToString()];
+							}
+							else data.Line = $"unknown (\"{newIdentifier}\" : \"{voiceLine}\")";
+						}
+						else data.Line = $"unknown (\"{newIdentifier}\" : \"{voiceLine}\")";
+					}
+				}
+				else data.Line = $"unknown (\"{newIdentifier}\" : \"{voiceLine}\")";
+			}
 			lock (Instance)
 			{
 				Instance.dialogue.Add(data);

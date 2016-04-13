@@ -27,7 +27,7 @@ namespace SubtitlePlugin
 	[ExportMetadata("Description", "자막을 추가해주는 플러그인 입니다.")]
 	[ExportMetadata("Version", "0.0.1")]
 	[ExportMetadata("Author", "@CirnoV")]
-	public class SubtitlePlugin : IPlugin, ITool
+	public class PluginMain : IPlugin, ITool
 	{
 		// Item 1: it's last modified time.
 		// Item 2: the time we're expected to ask for cache control.
@@ -37,14 +37,14 @@ namespace SubtitlePlugin
 		private readonly ToolViewModel ToolViewModel;
 		public static string Test;
 
-		public SubtitlePlugin()
+		public PluginMain()
 		{
 			this.ToolViewModel = new ToolViewModel();
 
 			cacheControl = new Dictionary<string, Tuple<DateTime, DateTime>>();
 		}
 
-		~SubtitlePlugin()
+		~PluginMain()
 		{
 			ProxyServer.BeforeRequest -= ProxyServer_BeforeRequest;
 			ProxyServer.BeforeResponse -= ProxyServer_BeforeResponse;
@@ -61,12 +61,12 @@ namespace SubtitlePlugin
 
 			ProxyServer.BeforeRequest += ProxyServer_BeforeRequest;
 			ProxyServer.BeforeResponse += ProxyServer_BeforeResponse;
-			
+
 			var explicitEndPoint = new ExplicitProxyEndPoint(IPAddress.Any, 15347, true);
 			
 			ProxyServer.AddEndPoint(explicitEndPoint);
 			ProxyServer.Start();
-			
+
 			ProxyServer.SetAsSystemHttpProxy(explicitEndPoint);
 		}
 
@@ -81,13 +81,13 @@ namespace SubtitlePlugin
 				switch (substrings[3])
 				{
 					case "titlecall":
-						ToolViewModel.Text = DialogueTranslator.Add(DialogueType.Titlecall, substrings[4], substrings[5].Split('.')[0]);
+						ToolViewModel.UpdateText(DialogueTranslator.Add(DialogueType.Titlecall, substrings[4], substrings[5].Split('.')[0]));
 						break;
 					case "kc9999":
-						ToolViewModel.Text = DialogueTranslator.Add(DialogueType.NPC, "npc", substrings[4].Split('.')[0]);
+						ToolViewModel.UpdateText(DialogueTranslator.Add(DialogueType.NPC, "npc", substrings[4].Split('.')[0]));
 						break;
 					default:
-						ToolViewModel.Text = DialogueTranslator.Add(DialogueType.Shipgirl, substrings[3].Substring(2), substrings[4].Split('.')[0]);
+						ToolViewModel.UpdateText(DialogueTranslator.Add(DialogueType.Shipgirl, substrings[3].Substring(2), substrings[4].Split('.')[0]));
 						break;
 				}
 				if (request.RequestHeaders.Where(h => h.Name == "If-Modified-Since").Count() > 0)
